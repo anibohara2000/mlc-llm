@@ -183,12 +183,10 @@ async def request_completion(request: ChatCompletionRequest):
         stop=request.stop,
     )
 
-    session["chat_mod"].reset_chat() # Reset previous history, KV cache, etc.
+    session["chat_mod"].reset_chat()  # Reset previous history, KV cache, etc.
 
     if request.stream:
-        session["chat_mod"]._prefill(
-            input=request.messages, generation_config=generation_config
-        )
+        session["chat_mod"]._prefill(input=request.messages, generation_config=generation_config)
 
         async def iter_response():
             prev_txt = ""
@@ -221,7 +219,8 @@ async def request_completion(request: ChatCompletionRequest):
                     index=index,
                     message=ChatMessage(role="assistant", content=msg[index]),
                     finish_reason="stop",
-                ) for index in range(len(msg))
+                )
+                for index in range(len(msg))
             ],
             # TODO: Fill in correct usage info
             usage=UsageInfo(prompt_tokens=0, completion_tokens=0, total_tokens=0),
@@ -328,12 +327,14 @@ async def read_stats():
     """
     return session["chat_mod"].stats()
 
+
 @app.get("/verbose_stats")
 async def read_stats_verbose():
     """
     Get the verbose runtime stats.
     """
     return session["chat_mod"].stats(verbose=True)
+
 
 ARGS = convert_args_to_argparser().parse_args()
 if __name__ == "__main__":
