@@ -171,7 +171,6 @@ async def request_completion(request: ChatCompletionRequest):
     """
     Creates model response for the given chat conversation.
     """
-    print(request)
     generation_config = GenerationConfig(
         temperature=request.temperature,
         repetition_penalty=request.repetition_penalty,
@@ -181,7 +180,6 @@ async def request_completion(request: ChatCompletionRequest):
         mean_gen_len=request.mean_gen_len,
         max_gen_len=request.max_gen_len,
     )
-    print(generation_config)
 
     if len(request.messages) > 1:
         raise ValueError(
@@ -247,7 +245,6 @@ async def request_completion(request: CompletionRequest):
         mean_gen_len=request.mean_gen_len,
         max_gen_len=request.max_gen_len,
     )
-    print(generation_config)
 
     session["chat_mod"].reset_chat()
     # Langchain's load_qa_chain.run expects the input to be a list with the query
