@@ -216,6 +216,16 @@ class GenerationConfig:
         post: https://huggingface.co/blog/how-to-generate#top-p-nucleus-sampling.
     mean_gen_len : Optional[int]
     max_gen_len : Optional[int]
+        This parameter determines the maximum length of the generated text. If it is
+        not set, the model will generate text until it encounters a stop token.
+    n : Optional[int]
+        This parameter determines the number of text samples to generate. The default
+        value is ``1``.
+    stop : Optional[Union[str, List[str]]]
+        When ``stop`` is encountered, the model will stop generating output.
+        It can be a string or a list of strings. If it is a list of strings, the model
+        will stop generating output when any of the strings in the list is encountered.
+        Note that this parameter does not override the default stop string of the model.
     """
 
     temperature: Optional[float] = None
@@ -223,6 +233,8 @@ class GenerationConfig:
     top_p: Optional[float] = None
     mean_gen_len: Optional[int] = None
     max_gen_len: Optional[int] = None
+    n: Optional[int] = None
+    stop: Optional[Union[str, List[str]]] = None
 
     @classmethod
     def _from_chat_config(generation_config_cls, chat_config_obj: ChatConfig):
@@ -759,25 +771,36 @@ class ChatModule:
           )
           print(output)
         """
-        self._prefill(prompt, generation_config=generation_config)
+        new_msgs = []
+        num_return_sequences = 1
+        return_str = True
+        if generation_config.n:
+            num_return_sequences = generation_config.n
+            return_str = False
+        else:
+            num_return_sequences = 1
+        
+        for _ in range(num_return_sequences):
+            self.reset_chat()
+            self._prefill(prompt, generation_config=generation_config)
 
-        if not progress_callback:
-            while not self._stopped():
-                self._decode(generation_config=generation_config)
-            new_msg = self._get_message()
-            return new_msg
-
-        # apply callback with a rate of callback_interval
-        i, new_msg = 0, ""
-        while not self._stopped():
-            self._decode(generation_config=generation_config)
-            if i % progress_callback.callback_interval == 0 or self._stopped():
+            if not progress_callback:
+                while not self._stopped():
+                    self._decode(generation_config=generation_config)
                 new_msg = self._get_message()
-                progress_callback(new_msg)
-            i += 1
-        progress_callback(stopped=True)
-
-        return new_msg
+                new_msgs.append(new_msg)
+            else:
+            # apply callback with a rate of callback_interval
+                i, new_msg = 0, ""
+                while not self._stopped():
+                    self._decode(generation_config=generation_config)
+                    if i % progress_callback.callback_interval == 0 or self._stopped():
+                        new_msg = self._get_message()
+                        progress_callback(new_msg)
+                    i += 1
+                progress_callback(stopped=True)
+                new_msgs.append(new_msg)
+        return new_msgs[0] if return_str else new_msgs
 
     def reset_chat(self, chat_config: Optional[ChatConfig] = None):
         r"""Reset the chat session, clear all chat history, and potentially
@@ -1026,7 +1049,6 @@ class ChatModule:
         """
         generation_config = _get_generation_config(self.chat_config, generation_config)
         generation_config_str = _convert_generation_config_to_json_str(generation_config)
-
         self._decode_func(generation_config_str)
 
     def _stopped(self) -> bool:
