@@ -231,7 +231,8 @@ class GenerationConfig:
         not set, the model will generate text until it encounters a stop token.
     n : Optional[int]
         This parameter determines the number of text samples to generate. The default
-        value is ``1``.
+        value is ``1``. Note that this parameter is only used when ``stream`` is set to 
+        ``False``.
     stop : Optional[Union[str, List[str]]]
         When ``stop`` is encountered, the model will stop generating output.
         It can be a string or a list of strings. If it is a list of strings, the model
@@ -248,8 +249,6 @@ class GenerationConfig:
     frequency_penalty: Optional[float] = 0.0
     n: Optional[int] = None
     stop: Optional[Union[str, List[str]]] = None
-    presence_penalty: Optional[float] = 0.0
-    frequency_penalty: Optional[float] = 0.0
 
     @classmethod
     def _from_chat_config(generation_config_cls, chat_config_obj: ChatConfig):
