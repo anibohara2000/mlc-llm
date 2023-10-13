@@ -747,7 +747,7 @@ class ChatModule:
         prompt: Union[str, List[str]],
         generation_config: Optional[GenerationConfig] = None,
         progress_callback=None,
-    ) -> str:
+    ) -> Union[str, List[str]]:
         r"""A high-level method that returns the full response from the chat module given a user prompt.
         User can optionally specify which callback method to use upon receiving the response. By default,
         no callback will be applied.
