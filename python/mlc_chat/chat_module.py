@@ -14,6 +14,8 @@ from tvm.runtime import disco
 
 from . import callback
 
+from .interface.openai_api import ChatMessage
+
 # pylint: disable=line-too-long
 _PYTHON_GET_STARTED_TUTORIAL_URL = "https://github.com/mlc-ai/notebooks/blob/main/mlc-llm/tutorial_chat_module_getting_started.ipynb"
 # pylint: enable=line-too-long
@@ -744,7 +746,7 @@ class ChatModule:
 
     def generate(
         self,
-        prompt: Union[str, List[str]],
+        prompt: Union[str, List[ChatMessage]],
         generation_config: Optional[GenerationConfig] = None,
         progress_callback=None,
     ) -> Union[str, List[str]]:
@@ -754,8 +756,14 @@ class ChatModule:
 
         Parameters
         ----------
-        prompt : str
+        prompt : Union[str, List[ChatMessage]]
             The user input prompt, i.e. a question to ask the chat module.
+            It can also be the whole conversation history (list of messages with role and content)
+            eg: ```[
+                ChatMessage(role="user", content="Hello, how are you?"),
+                ChatMessage(role="assistant", content="I'm fine, thank you. How about you?"),
+                ChatMessage(role="user", content="I'm good too."),
+            ]```
         generation_config: Optional[GenerationConfig]
             The generation config object to override the ChatConfig generation settings.
         progress_callback: object
@@ -952,7 +960,7 @@ class ChatModule:
 
     def _prefill(
         self,
-        input: Union[str, List[str]],
+        input: Union[str, List[ChatMessage]],
         decode_next_token: bool = True,
         place_in_prompt: PlaceInPrompt = PlaceInPrompt.All,
         generation_config: Optional[GenerationConfig] = None,
@@ -962,8 +970,14 @@ class ChatModule:
 
         Parameters
         ----------
-        input : str
-            The user input string.
+        input : Union[str, List[ChatMessage]]
+            The user input prompt, i.e. a question to ask the chat module.
+            It can also be the whole conversation history (list of messages with role and content)
+            eg: ```[
+                ChatMessage(role="user", content="Hello, how are you?"),
+                ChatMessage(role="assistant", content="I'm fine, thank you. How about you?"),
+                ChatMessage(role="user", content="I'm good too."),
+            ]```
         decode_next_token : bool
             Whether to decode the next token after prefilling.
         place_in_prompt: PlaceInPrompt
@@ -990,7 +1004,8 @@ class ChatModule:
                         messages.append([role1, content])
                     else:
                         raise ValueError("Only user and assistant roles are supported.")
-
+                if not input[-1].role == "user":
+                    raise ValueError("Last message should be from user.")
                 conv_config["messages"] = messages
                 conv_config[
                     "offset"
