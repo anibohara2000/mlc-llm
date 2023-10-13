@@ -788,7 +788,7 @@ class ChatModule:
         new_msgs = []
         num_return_sequences = 1
         return_str = True
-        if generation_config.n:
+        if (generation_config is not None) and (generation_config.n is not None):
             num_return_sequences = generation_config.n
             return_str = False
         else:
