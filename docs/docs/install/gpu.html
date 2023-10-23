@@ -67,7 +67,7 @@
             <button type="button" id="closeHeadMenu" class="navCloseBtn"><img src="../_static/img/close-icon.svg" alt="Close"></button>
              <ul class="nav">
                 <li class="nav-item">
-                   <a class="nav-link" href=https://mlc.ai/mlc-llm>Home</a>
+                   <a class="nav-link" href=https://llm.mlc.ai/>Home</a>
                 </li>
                 <li class="nav-item">
                    <a class="nav-link" href=https://github.com/mlc-ai/mlc-llm>Github</a>
@@ -85,7 +85,7 @@
                        <a href=https://mlc.ai/>MLC Course</a>
                      </li>
                      <li>
-                       <a href=https://mlc.ai/blog>MLC Blog</a>
+                       <a href=https://blog.mlc.ai/>MLC Blog</a>
                      </li>
                      <li>
                        <a href=https://webllm.mlc.ai/>Web LLM</a>
@@ -108,7 +108,7 @@
                        <a href=https://mlc.ai/>MLC Course</a>
                      </li>
                      <li>
-                       <a href=https://mlc.ai/blog>MLC Blog</a>
+                       <a href=https://blog.mlc.ai/>MLC Blog</a>
                      </li>
                      <li>
                        <a href=https://webllm.mlc.ai/>Web LLM</a>
@@ -167,7 +167,6 @@
             
               <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../get_started/try_out.html">Try out MLC Chat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../get_started/project_overview.html">Project Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../get_started/mlc_chat_config.html">Configure MLCChat in JSON</a></li>
 </ul>
@@ -185,6 +184,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../compilation/compile_models.html">Compile Models via MLC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../compilation/distribute_compiled_models.html">Distribute Compiled Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../compilation/python.html">Python API for Model Compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compilation/configure_quantization.html">🚧 Configure Quantization</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Define Model Architectures</span></p>
 <ul>
@@ -196,7 +196,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Dependency Installation</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="tvm.html">Install TVM Unity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tvm.html">Install TVM Unity Compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlc_llm.html">Install MLC LLM Python Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conda.html">Install Conda</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">GPU Drivers and SDKs</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#cuda">CUDA</a><ul>
@@ -210,18 +211,18 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#vulkan-driver">Vulkan Driver</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id3">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Installation</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#amd-radeon-and-radeon-pro">AMD Radeon and Radeon PRO</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#id4">Validate Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Validate Installation</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#vulkan-sdk">Vulkan SDK</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#opencl-sdk">OpenCL SDK</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#orange-pi-5-rk3588-based-sbc">Orange Pi 5 (RK3588 based SBC)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id5">Installation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id6">Validate Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Validate Installation</a></li>
 </ul>
 </li>
 </ul>
@@ -232,6 +233,10 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../community/guideline.html">Community Guideline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../community/faq.html">Frequently Asked Questions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Privacy</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../privacy.html">MLC Chat App Privacy</a></li>
 </ul>
 
             
@@ -314,25 +319,25 @@
            <div itemprop="articleBody">
             
   <section id="gpu-drivers-and-sdks">
-<h1><a class="toc-backref" href="#id7" role="doc-backlink">GPU Drivers and SDKs</a><a class="headerlink" href="#gpu-drivers-and-sdks" title="Permalink to this heading">¶</a></h1>
+<h1><a class="toc-backref" href="#id8" role="doc-backlink">GPU Drivers and SDKs</a><a class="headerlink" href="#gpu-drivers-and-sdks" title="Permalink to this heading">¶</a></h1>
 <nav class="contents" id="table-of-contents">
 <p class="topic-title">Table of Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#gpu-drivers-and-sdks" id="id7">GPU Drivers and SDKs</a></p>
+<li><p><a class="reference internal" href="#gpu-drivers-and-sdks" id="id8">GPU Drivers and SDKs</a></p>
 <ul>
-<li><p><a class="reference internal" href="#cuda" id="id8">CUDA</a></p></li>
-<li><p><a class="reference internal" href="#rocm" id="id9">ROCm</a></p></li>
-<li><p><a class="reference internal" href="#vulkan-driver" id="id10">Vulkan Driver</a></p></li>
-<li><p><a class="reference internal" href="#vulkan-sdk" id="id11">Vulkan SDK</a></p></li>
-<li><p><a class="reference internal" href="#opencl-sdk" id="id12">OpenCL SDK</a></p></li>
-<li><p><a class="reference internal" href="#orange-pi-5-rk3588-based-sbc" id="id13">Orange Pi 5 (RK3588 based SBC)</a></p></li>
+<li><p><a class="reference internal" href="#cuda" id="id9">CUDA</a></p></li>
+<li><p><a class="reference internal" href="#rocm" id="id10">ROCm</a></p></li>
+<li><p><a class="reference internal" href="#vulkan-driver" id="id11">Vulkan Driver</a></p></li>
+<li><p><a class="reference internal" href="#vulkan-sdk" id="id12">Vulkan SDK</a></p></li>
+<li><p><a class="reference internal" href="#opencl-sdk" id="id13">OpenCL SDK</a></p></li>
+<li><p><a class="reference internal" href="#orange-pi-5-rk3588-based-sbc" id="id14">Orange Pi 5 (RK3588 based SBC)</a></p></li>
 </ul>
 </li>
 </ul>
 </nav>
 <p>MLC LLM is a universal deployment solution that allows efficient CPU/GPU code generation without AutoTVM-based performance tuning. This section focuses on generic GPU environment setup and troubleshooting.</p>
 <section id="cuda">
-<h2><a class="toc-backref" href="#id8" role="doc-backlink">CUDA</a><a class="headerlink" href="#cuda" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id9" role="doc-backlink">CUDA</a><a class="headerlink" href="#cuda" title="Permalink to this heading">¶</a></h2>
 <p>CUDA is required to compile and run models with CUDA backend.</p>
 <section id="installation">
 <h3>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h3>
@@ -346,7 +351,7 @@ backend, you should install CUDA, which can be downloaded from
 </section>
 </section>
 <section id="rocm">
-<h2><a class="toc-backref" href="#id9" role="doc-backlink">ROCm</a><a class="headerlink" href="#rocm" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id10" role="doc-backlink">ROCm</a><a class="headerlink" href="#rocm" title="Permalink to this heading">¶</a></h2>
 <p>ROCm is required to compile and run models with ROCm backend.</p>
 <section id="id1">
 <h3>Installation<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
@@ -361,9 +366,9 @@ If you see the list of AMD devices printed out in a table, it means the ROCm is 
 </section>
 </section>
 <section id="vulkan-driver">
-<h2><a class="toc-backref" href="#id10" role="doc-backlink">Vulkan Driver</a><a class="headerlink" href="#vulkan-driver" title="Permalink to this heading">¶</a></h2>
-<section id="id3">
-<h3>Installation<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<span id="id3"></span><h2><a class="toc-backref" href="#id11" role="doc-backlink">Vulkan Driver</a><a class="headerlink" href="#vulkan-driver" title="Permalink to this heading">¶</a></h2>
+<section id="id4">
+<h3>Installation<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
 <p>To run pre-trained models (e.g. pulled from MLC-AI’s Hugging Face repository) compiled with Vulkan backend, you are expected to install Vulkan driver on your machine.</p>
 <p>Please check <a class="reference external" href="https://www.vulkan.org/tools#vulkan-gpu-resources">this
 page</a> and find the
@@ -378,8 +383,8 @@ the driver. We recommend you installing ROCr OpenCL and PRO Vulkan (proprietary)
 </div>
 </section>
 </section>
-<section id="id4">
-<h3>Validate Installation<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<section id="id5">
+<h3>Validate Installation<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
 <p>To verify whether Vulkan installation is successful or not, you are encouraged to install <code class="docutils literal notranslate"><span class="pre">vulkaninfo</span></code>, below are the instructions to install <code class="docutils literal notranslate"><span class="pre">vulkaninfo</span></code> on different platforms:</p>
 <div class="sphinx-tabs docutils container">
 <div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-VWJ1bnR1L0RlYmlhbg==" aria-selected="true" class="sphinx-tabs-tab code-tab group-tab" id="tab-0-VWJ1bnR1L0RlYmlhbg==" name="VWJ1bnR1L0RlYmlhbg==" role="tab" tabindex="0">Ubuntu/Debian</button><button aria-controls="panel-0-V2luZG93cw==" aria-selected="false" class="sphinx-tabs-tab code-tab group-tab" id="tab-0-V2luZG93cw==" name="V2luZG93cw==" role="tab" tabindex="-1">Windows</button><button aria-controls="panel-0-RmVkb3Jh" aria-selected="false" class="sphinx-tabs-tab code-tab group-tab" id="tab-0-RmVkb3Jh" name="RmVkb3Jh" role="tab" tabindex="-1">Fedora</button><button aria-controls="panel-0-QXJjaCBMaW51eA==" aria-selected="false" class="sphinx-tabs-tab code-tab group-tab" id="tab-0-QXJjaCBMaW51eA==" name="QXJjaCBMaW51eA==" role="tab" tabindex="-1">Arch Linux</button><button aria-controls="panel-0-T3RoZXIgRGlzdHJpYnV0aW9ucw==" aria-selected="false" class="sphinx-tabs-tab code-tab group-tab" id="tab-0-T3RoZXIgRGlzdHJpYnV0aW9ucw==" name="T3RoZXIgRGlzdHJpYnV0aW9ucw==" role="tab" tabindex="-1">Other Distributions</button></div><div aria-labelledby="tab-0-VWJ1bnR1L0RlYmlhbg==" class="sphinx-tabs-panel code-tab group-tab" id="panel-0-VWJ1bnR1L0RlYmlhbg==" name="VWJ1bnR1L0RlYmlhbg==" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>update
@@ -409,8 +414,8 @@ sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w
 </section>
 </section>
 <section id="vulkan-sdk">
-<h2><a class="toc-backref" href="#id11" role="doc-backlink">Vulkan SDK</a><a class="headerlink" href="#vulkan-sdk" title="Permalink to this heading">¶</a></h2>
-<p>Vulkan SDK is required for compiling models to Vulkan backend. To build TVM Unity compiler from source, you will need to install Vulkan SDK as a dependency, but our <a class="reference external" href="https://mlc.ai/package">pre-built wheels</a> already ships with Vulkan SDK.</p>
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">Vulkan SDK</a><a class="headerlink" href="#vulkan-sdk" title="Permalink to this heading">¶</a></h2>
+<p>Vulkan SDK is required for compiling models to Vulkan backend. To build TVM Unity compiler from source, you will need to install Vulkan SDK as a dependency, but our <a class="reference internal" href="mlc_llm.html"><span class="doc">pre-built wheels</span></a> already ships with Vulkan SDK.</p>
 <p>Check Vulkan SDK installation guide according to your platform:</p>
 <div class="sphinx-tabs docutils container">
 <div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-1-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-1-1-0" name="1-0" role="tab" tabindex="0">Windows</button><button aria-controls="panel-1-1-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-1" name="1-1" role="tab" tabindex="-1">Linux</button><button aria-controls="panel-1-1-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-2" name="1-2" role="tab" tabindex="-1">Mac</button></div><div aria-labelledby="tab-1-1-0" class="sphinx-tabs-panel" id="panel-1-1-0" name="1-0" role="tabpanel" tabindex="0"><p><a class="reference external" href="https://vulkan.lunarg.com/doc/sdk/latest/windows/getting_started.html">Getting Started with the Windows Tarball Vulkan SDK</a></p>
@@ -423,14 +428,14 @@ sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w
 <p>Please refer to installation and setup page for next steps to build TVM-Unity from source.</p>
 </section>
 <section id="opencl-sdk">
-<h2><a class="toc-backref" href="#id12" role="doc-backlink">OpenCL SDK</a><a class="headerlink" href="#opencl-sdk" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id13" role="doc-backlink">OpenCL SDK</a><a class="headerlink" href="#opencl-sdk" title="Permalink to this heading">¶</a></h2>
 <p>OpenCL SDK is only required when you want to build your own models for OpenCL backend. Please refer to <a class="reference external" href="https://github.com/KhronosGroup/OpenCL-SDK">OpenCL’s Github Repository</a> for installation guide of OpenCL-SDK.</p>
 </section>
 <section id="orange-pi-5-rk3588-based-sbc">
-<h2><a class="toc-backref" href="#id13" role="doc-backlink">Orange Pi 5 (RK3588 based SBC)</a><a class="headerlink" href="#orange-pi-5-rk3588-based-sbc" title="Permalink to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id14" role="doc-backlink">Orange Pi 5 (RK3588 based SBC)</a><a class="headerlink" href="#orange-pi-5-rk3588-based-sbc" title="Permalink to this heading">¶</a></h2>
 <p>OpenCL SDK and Mali GPU driver is required to compile and run models for OpenCL backend.</p>
-<section id="id5">
-<h3>Installation<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
+<section id="id6">
+<h3>Installation<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Download and install the Ubuntu 22.04 for your board from <a class="reference external" href="https://github.com/Joshua-Riek/ubuntu-rockchip/releases/tag/v1.22">here</a></p></li>
 <li><p>Download and install <code class="docutils literal notranslate"><span class="pre">libmali-g610.so</span></code></p></li>
@@ -472,8 +477,8 @@ sudo<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </sp
 </pre></div>
 </div>
 </section>
-<section id="id6">
-<h3>Validate Installation<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h3>
+<section id="id7">
+<h3>Validate Installation<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h3>
 <p>To verify you have correctly installed OpenCL runtime and Mali GPU driver, run <code class="docutils literal notranslate"><span class="pre">clinfo</span></code> in command line and see if you can get the GPU information.
 You are expect to see the following information:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>clinfo

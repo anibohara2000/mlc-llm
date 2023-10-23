@@ -46,6 +46,7 @@
     <script type="text/javascript" src="../_static/js/tlcpack_theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="MLC Chat App Privacy" href="../privacy.html" />
     <link rel="prev" title="Community Guideline" href="guideline.html" /> 
 </head>
 
@@ -65,7 +66,7 @@
             <button type="button" id="closeHeadMenu" class="navCloseBtn"><img src="../_static/img/close-icon.svg" alt="Close"></button>
              <ul class="nav">
                 <li class="nav-item">
-                   <a class="nav-link" href=https://mlc.ai/mlc-llm>Home</a>
+                   <a class="nav-link" href=https://llm.mlc.ai/>Home</a>
                 </li>
                 <li class="nav-item">
                    <a class="nav-link" href=https://github.com/mlc-ai/mlc-llm>Github</a>
@@ -83,7 +84,7 @@
                        <a href=https://mlc.ai/>MLC Course</a>
                      </li>
                      <li>
-                       <a href=https://mlc.ai/blog>MLC Blog</a>
+                       <a href=https://blog.mlc.ai/>MLC Blog</a>
                      </li>
                      <li>
                        <a href=https://webllm.mlc.ai/>Web LLM</a>
@@ -106,7 +107,7 @@
                        <a href=https://mlc.ai/>MLC Course</a>
                      </li>
                      <li>
-                       <a href=https://mlc.ai/blog>MLC Blog</a>
+                       <a href=https://blog.mlc.ai/>MLC Blog</a>
                      </li>
                      <li>
                        <a href=https://webllm.mlc.ai/>Web LLM</a>
@@ -165,7 +166,6 @@
             
               <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../get_started/try_out.html">Try out MLC Chat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../get_started/project_overview.html">Project Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../get_started/mlc_chat_config.html">Configure MLCChat in JSON</a></li>
 </ul>
@@ -183,6 +183,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../compilation/compile_models.html">Compile Models via MLC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../compilation/distribute_compiled_models.html">Distribute Compiled Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../compilation/python.html">Python API for Model Compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compilation/configure_quantization.html">🚧 Configure Quantization</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Define Model Architectures</span></p>
 <ul>
@@ -194,7 +195,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Dependency Installation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../install/tvm.html">Install TVM Unity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/tvm.html">Install TVM Unity Compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/mlc_llm.html">Install MLC LLM Python Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install/conda.html">Install Conda</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install/gpu.html">GPU Drivers and SDKs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install/emcc.html">Install Wasm Build Environment</a></li>
@@ -203,6 +205,10 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="guideline.html">Community Guideline</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Frequently Asked Questions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Privacy</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../privacy.html">MLC Chat App Privacy</a></li>
 </ul>
 
             
@@ -293,8 +299,7 @@
 <dt>… What’s the quantization algorithm MLC-LLM using?</dt><dd><p>Please check our <a class="reference internal" href="../compilation/configure_quantization.html"><span class="doc">🚧 Configure Quantization</span></a> tutorial.</p>
 </dd>
 <dt>… Why do I encounter an error <code class="docutils literal notranslate"><span class="pre">free():</span> <span class="pre">invalid</span> <span class="pre">pointer,</span> <span class="pre">Aborted</span> <span class="pre">(core</span> <span class="pre">dumped)</span></code> at the end of model compilation?</dt><dd><p>This happens if you compiled TVM-Unity from source and didn’t hide LLVM symbols in cmake configurations.
-Please follow our instructions in <a class="reference internal" href="../install/tvm.html#tvm-unity-build-from-source"><span class="std std-ref">Building TVM Unity from Source</span></a> tutorial to compile TVM-Unity which hides LLVM symbols,
-or use our pre-builc MLC-AI pip wheels from <a class="reference external" href="https://mlc.ai/package/">MLC Packages</a>.</p>
+Please follow our instructions in <a class="reference internal" href="../install/tvm.html#tvm-unity-build-from-source"><span class="std std-ref">Building TVM Unity from Source</span></a> tutorial to compile TVM-Unity which hides LLVM symbols, or use our pre-built MLC-LLM <a class="reference internal" href="../install/mlc_llm.html"><span class="doc">pip wheels</span></a>.</p>
 </dd>
 </dl>
 </section>
@@ -308,6 +313,8 @@ or use our pre-builc MLC-AI pip wheels from <a class="reference external" href="
 <footer>
 
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../privacy.html" class="btn btn-neutral float-right" title="MLC Chat App Privacy" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="guideline.html" class="btn btn-neutral float-left" title="Community Guideline" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

@@ -64,7 +64,7 @@
             <button type="button" id="closeHeadMenu" class="navCloseBtn"><img src="_static/img/close-icon.svg" alt="Close"></button>
              <ul class="nav">
                 <li class="nav-item">
-                   <a class="nav-link" href=https://mlc.ai/mlc-llm>Home</a>
+                   <a class="nav-link" href=https://llm.mlc.ai/>Home</a>
                 </li>
                 <li class="nav-item">
                    <a class="nav-link" href=https://github.com/mlc-ai/mlc-llm>Github</a>
@@ -82,7 +82,7 @@
                        <a href=https://mlc.ai/>MLC Course</a>
                      </li>
                      <li>
-                       <a href=https://mlc.ai/blog>MLC Blog</a>
+                       <a href=https://blog.mlc.ai/>MLC Blog</a>
                      </li>
                      <li>
                        <a href=https://webllm.mlc.ai/>Web LLM</a>
@@ -105,7 +105,7 @@
                        <a href=https://mlc.ai/>MLC Course</a>
                      </li>
                      <li>
-                       <a href=https://mlc.ai/blog>MLC Blog</a>
+                       <a href=https://blog.mlc.ai/>MLC Blog</a>
                      </li>
                      <li>
                        <a href=https://webllm.mlc.ai/>Web LLM</a>
@@ -164,7 +164,6 @@
             
               <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="get_started/try_out.html">Try out MLC Chat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="get_started/project_overview.html">Project Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="get_started/mlc_chat_config.html">Configure MLCChat in JSON</a></li>
 </ul>
@@ -182,6 +181,7 @@
 <li class="toctree-l1"><a class="reference internal" href="compilation/compile_models.html">Compile Models via MLC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compilation/distribute_compiled_models.html">Distribute Compiled Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compilation/python.html">Python API for Model Compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compilation/configure_quantization.html">🚧 Configure Quantization</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Define Model Architectures</span></p>
 <ul>
@@ -193,7 +193,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Dependency Installation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="install/tvm.html">Install TVM Unity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/tvm.html">Install TVM Unity Compiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/mlc_llm.html">Install MLC LLM Python Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install/conda.html">Install Conda</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install/gpu.html">GPU Drivers and SDKs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install/emcc.html">Install Wasm Build Environment</a></li>
@@ -202,6 +203,10 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="community/guideline.html">Community Guideline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="community/faq.html">Frequently Asked Questions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Privacy</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="privacy.html">MLC Chat App Privacy</a></li>
 </ul>
 
             
@@ -307,12 +312,24 @@
       <li><a href="deploy/python.html#mlc_chat.ChatModule.benchmark_generate">benchmark_generate() (mlc_chat.ChatModule method)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="compilation/python.html#mlc_llm.build_model">build_model() (in module mlc_llm)</a>
+</li>
+      <li><a href="compilation/python.html#mlc_llm.BuildArgs">BuildArgs (class in mlc_llm)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="deploy/python.html#mlc_chat.ChatConfig">ChatConfig (class in mlc_chat)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="deploy/python.html#mlc_chat.ChatModule">ChatModule (class in mlc_chat)</a>
+</li>
+      <li><a href="deploy/python.html#mlc_chat.ConvConfig">ConvConfig (class in mlc_chat)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -329,6 +346,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="deploy/python.html#mlc_chat.ChatModule.generate">generate() (mlc_chat.ChatModule method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="deploy/python.html#mlc_chat.GenerationConfig">GenerationConfig (class in mlc_chat)</a>
 </li>
   </ul></td>
 </tr></table>
