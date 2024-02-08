@@ -229,4 +229,5 @@ CONV_TEMPLATES = {
     "phi-2",
     "stablelm-2",
     "gemma_instruction",
+    "llava",
 }
