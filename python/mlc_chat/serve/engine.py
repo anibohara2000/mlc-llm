@@ -167,11 +167,24 @@ def _estimate_max_total_sequence_length(  # pylint: disable=too-many-locals
         with open(config_file_path, mode="rt", encoding="utf-8") as file:
             json_object = json.load(file)
             model_config = json_object["model_config"]
-            num_layers = model_config["num_hidden_layers"]
-            hidden_size = model_config["hidden_size"]
-            num_qo_heads = model_config["num_attention_heads"]
-            num_kv_heads = model_config["num_key_value_heads"]
             tensor_parallel_shards = model_config["tensor_parallel_shards"]
+            try:
+                num_layers = model_config["num_hidden_layers"]
+                hidden_size = model_config["hidden_size"]
+                num_qo_heads = model_config["num_attention_heads"]
+                num_kv_heads = model_config["num_key_value_heads"]
+            except KeyError:
+                try:
+                    text_config = model_config["text_config"]
+                    num_layers = text_config["num_hidden_layers"]
+                    hidden_size = text_config["hidden_size"]
+                    num_qo_heads = text_config["num_attention_heads"]
+                    num_kv_heads = text_config["num_key_value_heads"]
+                except KeyError:
+                    raise ValueError(
+                        "Cannot read model configuration. "
+                        f"Please check the model configuration file {config_file_path}."
+                    )
         kv_bytes_per_token += (
             (hidden_size / num_qo_heads)
             * (num_kv_heads / tensor_parallel_shards)  # on single GPU
