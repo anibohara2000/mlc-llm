@@ -65,6 +65,7 @@ struct FunctionTable {
   ModelMetadata model_metadata_;
 
   PackedFunc embed_func_;
+  PackedFunc image_embed_func_;
   PackedFunc single_batch_prefill_func_;
   PackedFunc single_batch_decode_func_;
   PackedFunc prefill_func_;

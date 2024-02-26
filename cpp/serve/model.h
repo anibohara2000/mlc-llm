@@ -59,6 +59,13 @@ class ModelObj : public Object {
   virtual NDArray TokenEmbed(IntTuple batch_token_ids) = 0;
 
   /*!
+   * \brief Compute embeddings for the input image.
+   * \param image The image to compute embedding for.
+   * \return The computed embeddings.
+   */
+  virtual NDArray ImageEmbed(const NDArray& image) = 0;
+
+  /*!
    * \brief Batch prefill function. Embedding in, logits out.
    * The embedding order of sequences in `embedding_arr` follows
    * the order of `seq_ids`.
@@ -131,6 +138,9 @@ class ModelObj : public Object {
 
   /*! \brief Get the max window size of the model. */
   virtual int GetMaxWindowSize() const = 0;
+
+  /*! \brief Get the size of image embedding (num of tokens) of the model. */
+  virtual int GetImageEmbedSize() const = 0;
 
   /*! \brief Reset the model KV cache and other statistics. */
   virtual void Reset() = 0;

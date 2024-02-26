@@ -189,6 +189,22 @@ class ModelImpl : public ModelObj {
     return embeddings_ndarray;
   }
 
+  NDArray ImageEmbed(const NDArray& image) final {
+    CHECK(ft_.image_embed_func_.defined()) << "`image_embed` function is not found in the model. ";
+    auto image_dref_or_nd = ft_.CopyToWorker0(image, "image", image.Shape());
+    ObjectRef embeddings = ft_.image_embed_func_(image_dref_or_nd, params_);
+    NDArray embeddings_ndarray;
+    if (ft_.use_disco) {
+      embeddings_ndarray = Downcast<DRef>(embeddings)->DebugGetFromRemote(0);
+    } else {
+      embeddings_ndarray = Downcast<NDArray>(embeddings);
+    }
+    // embeddings: (1, total_length, hidden_size)
+    ICHECK_EQ(embeddings_ndarray->ndim, 3);
+    ICHECK_EQ(embeddings_ndarray->shape[0], 1);
+    return embeddings_ndarray;
+  }
+
   NDArray BatchPrefill(const Array<NDArray>& embedding_arr, const std::vector<int64_t>& seq_ids,
                        const std::vector<int>& lengths) final {
     CHECK(!seq_ids.empty());
@@ -403,6 +419,11 @@ class ModelImpl : public ModelObj {
     return max_window_size_;
   }
 
+  int GetImageEmbedSize() const final {
+    CHECK_NE(image_embed_size_, -1) << "The model does not support image embedding";
+    return image_embed_size_;
+  }
+
   void Reset() final {
     // Reset the KV cache.
     if (kv_cache_.defined()) {
@@ -439,6 +460,24 @@ class ModelImpl : public ModelObj {
     } else {
       LOG(FATAL) << "Key \"vocab_size\" not found.";
     }
+
+    if (config.count("vision_config")) {
+      picojson::object vision_config = config["vision_config"].get<picojson::object>();
+      int image_size = -1;
+      int patch_size = -1;
+      if (vision_config.count("image_size")) {
+        CHECK(vision_config["image_size"].is<int64_t>());
+      } else {
+        LOG(FATAL) << "Key \"image_size\" not found in vision_config.";
+      }
+      if (vision_config.count("patch_size")) {
+        CHECK(vision_config["patch_size"].is<int64_t>());
+      } else {
+        LOG(FATAL) << "Key \"patch_size\" not found in vision_config.";
+      }
+      this->image_embed_size_ = (image_size * image_size) / (patch_size * patch_size);
+    }
+
     return config;
   }
 
@@ -449,6 +488,7 @@ class ModelImpl : public ModelObj {
   int num_shards_ = -1;
   int max_num_sequence_ = -1;
   int vocab_size_ = -1;
+  int image_embed_size_ = -1;
   //----------------------------
   // TVM related states
   //----------------------------

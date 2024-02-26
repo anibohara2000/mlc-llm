@@ -65,6 +65,7 @@ class LlavaConfig(ConfigBase):  # pylint: disable=too-many-instance-attributes
     prefill_chunk_size: int = 0
     tensor_parallel_shards: int = 1
     dtype: str = "float16"
+    max_batch_size: int = 1
     kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
 
     def __post_init__(self):
@@ -433,6 +434,20 @@ class LlavaForCasualLM(Module):
     def embed_with_pixel_values(self, pixel_values: Tensor, input_ids: Tensor) -> Tensor:
         return self._embed_pixel_values_and_input_ids(pixel_values, input_ids)
 
+    def image_embed(self, pixel_values: Tensor) -> Tensor:
+        image_features_all = self.vision_tower.forward(pixel_values)
+        image_features = wrap_nested(
+            strided_slice(
+                image_features_all._expr,  # pylint: disable=protected-access
+                axes=[1],
+                begin=[1],
+                end=[image_features_all.shape[1]],
+            ),
+            name="slice",
+        )
+        image_features = self.multi_modal_projector(image_features)
+        return image_features
+
     def batch_forward(
         self,
         input_embeds: Tensor,
@@ -467,40 +482,14 @@ class LlavaForCasualLM(Module):
     def softmax_with_temperature(self, logits: Tensor, temperature: Tensor):
         return op.softmax(logits / op.reshape(temperature, (temperature.shape[0], 1, 1)), axis=-1)
 
-    def create_flashinfer_paged_kv_cache(
+    def create_paged_kv_cache(
         self,
         max_batch_size: tir.Var,
         max_total_seq_len: tir.Var,
         prefill_chunk_size: tir.Var,
         page_size: tir.Var,
     ) -> PagedKVCache:
-        # Note: Right now we only have FlashInfer-based KV cache supported.
-        # TIR version will be introduced soon.
-        return FlashInferPagedKVCache(
-            max_batch_size=max_batch_size,
-            max_total_seq_len=max_total_seq_len,
-            prefill_chunk_size=prefill_chunk_size,
-            page_size=page_size,
-            num_hidden_layers=self.config.text_config.num_hidden_layers,
-            num_attention_heads=self.config.text_config.num_attention_heads
-            // self.config.tensor_parallel_shards,
-            num_key_value_heads=self.config.text_config.num_key_value_heads
-            // self.config.tensor_parallel_shards,
-            head_dim=self.config.text_config.head_dim,
-            rope_mode=RopeMode.NORMAL,
-            rope_scale=1,
-            rope_theta=self.language_model.rope_theta,
-            dtype=self.dtype,
-        )
-
-    def create_tir_paged_kv_cache(
-        self,
-        max_batch_size: tir.Var,
-        max_total_seq_len: tir.Var,
-        prefill_chunk_size: tir.Var,
-        page_size: tir.Var,
-    ) -> PagedKVCache:
-        return TIRPagedKVCache(
+        return PagedKVCache.create_generic(
             max_batch_size=max_batch_size,
             max_total_seq_len=max_total_seq_len,
             prefill_chunk_size=prefill_chunk_size,
@@ -537,6 +526,21 @@ class LlavaForCasualLM(Module):
                     self.dtype,
                 ),
                 "input_ids": nn.spec.Tensor([1, "seq_len"], "int32"),
+                "$": {
+                    "param_mode": "packed",
+                    "effect_mode": "none",
+                },
+            },
+            "image_embed": {
+                "pixel_values": nn.spec.Tensor(
+                    [
+                        1,
+                        3,
+                        self.config.vision_config.image_size,
+                        self.config.vision_config.image_size,
+                    ],
+                    self.dtype,
+                ),
                 "$": {
                     "param_mode": "packed",
                     "effect_mode": "none",
@@ -601,7 +605,7 @@ class LlavaForCasualLM(Module):
                     "effect_mode": "none",
                 },
             },
-            "create_flashinfer_paged_kv_cache": {
+            "create_paged_kv_cache": {
                 "max_batch_size": int,
                 "max_total_seq_len": int,
                 "prefill_chunk_size": int,
@@ -612,16 +616,4 @@ class LlavaForCasualLM(Module):
                 },
             },
         }
-        if self.dtype == "float16":
-            # "create_tir_paged_kv_cache" does not support dtype other than fp16 right now.
-            mod_spec["create_tir_paged_kv_cache"] = {
-                "max_batch_size": int,
-                "max_total_seq_len": int,
-                "prefill_chunk_size": int,
-                "page_size": int,
-                "$": {
-                    "param_mode": "none",
-                    "effect_mode": "none",
-                },
-            }
         return nn.spec.ModuleSpec.from_raw(mod_spec, self)

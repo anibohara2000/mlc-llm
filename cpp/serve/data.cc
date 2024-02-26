@@ -77,6 +77,29 @@ TVM_REGISTER_GLOBAL("mlc.serve.TokenDataGetTokenIds").set_body_typed([](TokenDat
   return data->token_ids;
 });
 
+/****************** ImageData ******************/
+
+TVM_REGISTER_OBJECT_TYPE(ImageDataNode);
+
+ImageData::ImageData(NDArray image, int embed_size) {
+  ObjectPtr<ImageDataNode> n = make_object<ImageDataNode>();
+  n->image = std::move(image);
+  n->embed_size = embed_size;
+  data_ = std::move(n);
+}
+
+int ImageDataNode::GetLength() const { return embed_size; }
+
+NDArray ImageDataNode::GetEmbedding(Model model) const { return model->ImageEmbed(image); }
+
+TVM_REGISTER_GLOBAL("mlc.serve.ImageData").set_body_typed([](NDArray image, int embed_size) {
+  return ImageData(std::move(image), embed_size);
+});
+
+TVM_REGISTER_GLOBAL("mlc.serve.ImageDataGetImage").set_body_typed([](ImageData data) {
+  return data->image;
+});
+
 }  // namespace serve
 }  // namespace llm
 }  // namespace mlc
