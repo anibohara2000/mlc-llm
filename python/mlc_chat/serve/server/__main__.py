@@ -1,4 +1,5 @@
 """Entrypoint of RESTful HTTP request server in MLC LLM"""
+
 import argparse
 import json
 

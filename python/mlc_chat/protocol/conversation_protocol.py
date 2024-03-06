@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Dict, List, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field, field_validator
+
 from ..serve import data
 
 
@@ -143,7 +144,7 @@ class Conversation(BaseModel):
         Returns:
             List[Union[str, data.ImageData]]: The list of prompts.
         """
-
+        # pylint: disable=import-outside-toplevel
         from ..serve.entrypoints.entrypoint_utils import get_image_from_url
 
         # - Get the system message.
@@ -156,6 +157,9 @@ class Conversation(BaseModel):
         separators = list(self.seps)
         if len(separators) == 1:
             separators.append(separators[0])
+
+        message_list.append(system_msg + separators[0])
+
         for role, content in self.messages:  # pylint: disable=not-an-iterable
             if role not in self.roles.keys():
                 raise ValueError(f'Role "{role}" is not a supported role in {self.roles.keys()}')
@@ -204,6 +208,6 @@ class Conversation(BaseModel):
 
         prompt = message_list
 
-        ## TODO: Support function calling
+        ## TODO: Support function calling #pylint: disable=fixme
 
         return prompt

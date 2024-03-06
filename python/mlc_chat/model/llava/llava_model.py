@@ -23,7 +23,7 @@ from tvm.relax.frontend.nn.op import (
 from tvm.relax.op import arange, strided_slice
 
 from mlc_chat import op as op_ext
-from mlc_chat.nn import FlashInferPagedKVCache, PagedKVCache, RopeMode, TIRPagedKVCache
+from mlc_chat.nn import PagedKVCache, RopeMode
 
 from ...support.config import ConfigBase
 from ..llama.llama_model import LlamaConfig, LlamaForCasualLM

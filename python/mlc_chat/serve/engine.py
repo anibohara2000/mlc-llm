@@ -180,11 +180,11 @@ def _estimate_max_total_sequence_length(  # pylint: disable=too-many-locals
                     hidden_size = text_config["hidden_size"]
                     num_qo_heads = text_config["num_attention_heads"]
                     num_kv_heads = text_config["num_key_value_heads"]
-                except KeyError:
+                except KeyError as e:
                     raise ValueError(
                         "Cannot read model configuration. "
                         f"Please check the model configuration file {config_file_path}."
-                    )
+                    ) from e
         kv_bytes_per_token += (
             (hidden_size / num_qo_heads)
             * (num_kv_heads / tensor_parallel_shards)  # on single GPU
@@ -424,7 +424,9 @@ class Engine:
                 return [data.TextData(prompt)]
             if isinstance(prompt[0], int):
                 return [data.TokenData(prompt)]
-            return prompt
+            if all(isinstance(item, data.Data) for item in prompt):
+                return prompt
+            raise ValueError("Invalid type for 'prompt'")
 
         # Add requests to engine.
         for req_id, (prompt, generation_cfg) in enumerate(zip(prompts, generation_config)):

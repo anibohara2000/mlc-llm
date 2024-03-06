@@ -1,13 +1,16 @@
 """Utility functions for server entrypoints"""
 
+import json
 import uuid
 from http import HTTPStatus
+from io import BytesIO
 from typing import Callable, List, Optional, Union
-import sys
-import subprocess
-import json
 
 import fastapi
+import requests
+import tvm
+from PIL import Image
+from transformers import CLIPImageProcessor
 
 from ...protocol import RequestProtocol
 from ...protocol.protocol_utils import ErrorResponse, get_unsupported_fields
@@ -97,15 +100,8 @@ def process_prompts(
 
 def get_image_from_url(url: str):
     """Get the image from the given URL, process and return the image tensor as TVM NDArray."""
-    import tvm
-    from transformers import CLIPImageProcessor
 
-    from io import BytesIO
-
-    import requests
-    from PIL import Image
-
-    response = requests.get(url)
+    response = requests.get(url, timeout=5)
     image_tensor = Image.open(BytesIO(response.content)).convert("RGB")
 
     image_processor = CLIPImageProcessor(
@@ -115,14 +111,14 @@ def get_image_from_url(url: str):
         image_processor.preprocess(image_tensor, return_tensors="np")["pixel_values"].astype(
             "float16"
         ),
-        device=tvm.runtime.ndarray.cuda(),
+        # device=tvm.runtime.ndarray.cuda(),
     )
     return image_features
 
 
 def get_image_embed_size(config_file_path: str) -> int:
     """Get the image embedding size from the model config file."""
-    with open(config_file_path, "r") as file:
+    with open(config_file_path, "r", encoding="utf-8") as file:
         config = json.load(file)
     image_size = config["model_config"]["vision_config"]["image_size"]
     patch_size = config["model_config"]["vision_config"]["patch_size"]
