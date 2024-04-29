@@ -25,6 +25,14 @@ ModelDefinedGenerationConfig::ModelDefinedGenerationConfig(double temperature, d
   data_ = std::move(n);
 }
 
+ModelDefinedGenerationConfig ModelDefinedGenerationConfig::FromJSON(const picojson::object& json) {
+  double temperature = json::Lookup<double>(json, "temperature");
+  double top_p = json::Lookup<double>(json, "top_p");
+  double frequency_penalty = json::Lookup<double>(json, "frequency_penalty");
+  double presence_penalty = json::Lookup<double>(json, "presence_penalty");
+  return ModelDefinedGenerationConfig(temperature, top_p, frequency_penalty, presence_penalty);
+}
+
 TVM_REGISTER_GLOBAL("mlc.json_ffi.ModelDefinedGenerationConfig")
     .set_body_typed([](double temperature, double top_p, double frequency_penalty,
                        double presence_penalty) {
@@ -344,6 +352,25 @@ JSONFFIEngineConfig::JSONFFIEngineConfig(
   n->conv_template = conv_template;
   n->model_generation_cfgs = model_generation_cfgs;
   data_ = std::move(n);
+}
+
+JSONFFIEngineConfig JSONFFIEngineConfig::FromJSONString(const std::string& json_str) {
+  picojson::value config_json;
+  std::string err = picojson::parse(config_json, json_str);
+  if (!err.empty()) {
+    LOG(FATAL) << err;
+  }
+
+  picojson::object config = config_json.get<picojson::object>();
+  String conv_template = json::Lookup<std::string>(config, "conv_template");
+  picojson::object model_generation_cfgs_arr =
+      json::Lookup<picojson::object>(config, "model_generation_cfgs");
+  Map<String, ModelDefinedGenerationConfig> model_generation_cfgs;
+  for (const auto& it : model_generation_cfgs_arr) {
+    model_generation_cfgs.Set(
+        it.first, ModelDefinedGenerationConfig::FromJSON(it.second.get<picojson::object>()));
+  }
+  return JSONFFIEngineConfig(conv_template, model_generation_cfgs);
 }
 
 TVM_REGISTER_GLOBAL("mlc.json_ffi.JSONFFIEngineConfig")

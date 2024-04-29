@@ -20,32 +20,6 @@ from mlc_llm.serve.engine_base import (
 from mlc_llm.tokenizer import Tokenizer
 
 
-# TODO(mlc-team): further minimize the JSONFFIEngine
-# construction to not depend on any config and directly pass in JSON
-# model defined generation config should be read from the JSONFFIEngine via Reload
-def create_model_defined_generation_config(
-    temperature: float, top_p: float, frequency_penalty: float, presence_penalty: float
-) -> tvm.runtime.Object:
-    return tvm.get_global_func("mlc.json_ffi.ModelDefinedGenerationConfig")(
-        temperature,
-        top_p,
-        frequency_penalty,
-        presence_penalty,
-    )
-
-
-# TODO(mlc-team): further minimize the JSONFFIEngine
-# Engine config should be passed as json str
-# and backend should have good default
-# only model and model_lib should be mandatory
-def create_json_ffi_engine_config(
-    conv_template: str, model_generation_cfgs: Dict[str, tvm.runtime.Object]
-) -> tvm.runtime.Object:
-    return tvm.get_global_func("mlc.json_ffi.JSONFFIEngineConfig")(
-        conv_template, model_generation_cfgs
-    )
-
-
 class EngineState:
     sync_queue: queue.Queue
 
@@ -151,33 +125,37 @@ class JSONFFIEngine:
         }
         self.tokenizer = Tokenizer(model_args[0][0])
 
-        self.engine_config = EngineConfig(
-            model=model_args[0][0],
-            model_lib_path=model_args[0][1],
-            additional_models=[model_arg[0] for model_arg in model_args[1:]],
-            additional_model_lib_paths=[model_arg[1] for model_arg in model_args[1:]],
-            kv_cache_page_size=16,
-            max_num_sequence=max_batch_size,
-            max_total_sequence_length=max_total_sequence_length,
-            max_single_sequence_length=max_single_sequence_length,
-            prefill_chunk_size=prefill_chunk_size,
-            max_history_size=max_history_size,
-            kv_state_kind=kv_state_kind,
-            speculative_mode=speculative_mode,
-            spec_draft_length=spec_draft_length,
+        self.engine_config = json.dumps(
+            {
+                "model": model_args[0][0],
+                "model_lib_path": model_args[0][1],
+                "additional_models": [model_arg[0] for model_arg in model_args[1:]],
+                "additional_model_lib_paths": [model_arg[1] for model_arg in model_args[1:]],
+                "kv_cache_page_size": 16,
+                "max_num_sequence": max_batch_size,
+                "max_total_sequence_length": max_total_sequence_length,
+                "max_single_sequence_length": max_single_sequence_length,
+                "prefill_chunk_size": prefill_chunk_size,
+                "max_history_size": max_history_size,
+                "kv_state_kind": kv_state_kind,
+                "speculative_mode": speculative_mode,
+                "spec_draft_length": spec_draft_length,
+            }
         )
 
-        self.json_ffi_engine_config = create_json_ffi_engine_config(
-            conv_template=self.conv_template.model_dump_json(),
-            model_generation_cfgs={
-                model.model: create_model_defined_generation_config(
-                    temperature=model_config["temperature"],
-                    top_p=model_config["top_p"],
-                    frequency_penalty=model_config["frequency_penalty"],
-                    presence_penalty=model_config["presence_penalty"],
-                )
-                for model, model_config in zip(models, self.model_config_dicts)
-            },
+        self.json_ffi_engine_config = json.dumps(
+            {
+                "conv_template": self.conv_template.model_dump_json(),
+                "model_generation_cfgs": {
+                    model.model: {
+                        "temperature": model_config["temperature"],
+                        "top_p": model_config["top_p"],
+                        "frequency_penalty": model_config["frequency_penalty"],
+                        "presence_penalty": model_config["presence_penalty"],
+                    }
+                    for model, model_config in zip(models, self.model_config_dicts)
+                },
+            }
         )
 
         self._ffi["init_background_engine"](

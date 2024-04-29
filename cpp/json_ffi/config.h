@@ -42,6 +42,9 @@ class ModelDefinedGenerationConfig : public ObjectRef {
   explicit ModelDefinedGenerationConfig(double temperature, double top_p, double frequency_penalty,
                                         double presence_penalty);
 
+  /*! \brief Create ModelDefinedGenerationConfig from picojson object. */
+  static ModelDefinedGenerationConfig FromJSON(const picojson::object& json);
+
   TVM_DEFINE_OBJECT_REF_METHODS(ModelDefinedGenerationConfig, ObjectRef,
                                 ModelDefinedGenerationConfigNode);
 };
@@ -161,6 +164,9 @@ class JSONFFIEngineConfig : public ObjectRef {
  public:
   explicit JSONFFIEngineConfig(String conv_template,
                                Map<String, ModelDefinedGenerationConfig> model_generation_cfgs);
+
+  /*! \brief Create JSONFFIEngineConfig from JSON string. */
+  static JSONFFIEngineConfig FromJSONString(const std::string& json_str);
 
   TVM_DEFINE_OBJECT_REF_METHODS(JSONFFIEngineConfig, ObjectRef, JSONFFIEngineConfigNode);
 };
