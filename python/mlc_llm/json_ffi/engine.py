@@ -20,6 +20,32 @@ from mlc_llm.serve.engine_base import (
 from mlc_llm.tokenizer import Tokenizer
 
 
+# TODO(mlc-team): further minimize the JSONFFIEngine
+# construction to not depend on any config and directly pass in JSON
+# model defined generation config should be read from the JSONFFIEngine via Reload
+def create_model_defined_generation_config(
+    temperature: float, top_p: float, frequency_penalty: float, presence_penalty: float
+) -> tvm.runtime.Object:
+    return tvm.get_global_func("mlc.json_ffi.ModelDefinedGenerationConfig")(
+        temperature,
+        top_p,
+        frequency_penalty,
+        presence_penalty,
+    )
+
+
+# TODO(mlc-team): further minimize the JSONFFIEngine
+# Engine config should be passed as json str
+# and backend should have good default
+# only model and model_lib should be mandatory
+def create_json_ffi_engine_config(
+    conv_template: str, model_generation_cfgs: Dict[str, tvm.runtime.Object]
+) -> tvm.runtime.Object:
+    return tvm.get_global_func("mlc.json_ffi.JSONFFIEngineConfig")(
+        conv_template, model_generation_cfgs
+    )
+
+
 class EngineState:
     sync_queue: queue.Queue
 
@@ -161,9 +187,10 @@ class JSONFFIEngine:
         self._ffi["init_background_engine"](
             self.json_ffi_engine_config,
             self.engine_config,
-            device,
+            device.device_type,
+            device.device_id,
             self.state.get_request_stream_callback(),
-            None,
+            # None,
         )
 
         def _background_loop():
