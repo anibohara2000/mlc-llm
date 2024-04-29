@@ -1,6 +1,7 @@
 package ai.mlc.mlcchat
 
 import ai.mlc.mlcllm.ChatModule
+import ai.mlc.mlcllm.MLCEngine
 import android.app.Application
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -502,14 +503,24 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         private var modelChatState = mutableStateOf(ModelChatState.Ready)
             @Synchronized get
             @Synchronized set
-        private val backend = ChatModule()
+//        private val backend = ChatModule()
+        private val engine = MLCEngine()
         private var modelLib = ""
         private var modelPath = ""
         private val executorService = Executors.newSingleThreadExecutor()
 
+//        private fun mainResetChat() {
+//            executorService.submit {
+//                callBackend { backend.resetChat() }
+//                viewModelScope.launch {
+//                    clearHistory()
+//                    switchToReady()
+//                }
+//            }
+//        }
+
         private fun mainResetChat() {
             executorService.submit {
-                callBackend { backend.resetChat() }
                 viewModelScope.launch {
                     clearHistory()
                     switchToReady()
@@ -543,7 +554,25 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             modelChatState.value = ModelChatState.Falied
         }
 
-        private fun callBackend(callback: () -> Unit): Boolean {
+//        private fun callBackend(callback: () -> Unit): Boolean {
+//            try {
+//                callback()
+//            } catch (e: Exception) {
+//                viewModelScope.launch {
+//                    val stackTrace = e.stackTraceToString()
+//                    val errorMessage = e.localizedMessage
+//                    appendMessage(
+//                        MessageRole.Bot,
+//                        "MLCChat failed\n\nStack trace:\n$stackTrace\n\nError message:\n$errorMessage"
+//                    )
+//                    switchToFailed()
+//                }
+//                return false
+//            }
+//            return true
+//        }
+
+        private fun callEngine(callback: () -> Unit): Boolean {
             try {
                 callback()
             } catch (e: Exception) {
@@ -602,9 +631,20 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
 
+//        private fun mainTerminateChat(callback: () -> Unit) {
+//            executorService.submit {
+//                callBackend { backend.unload() }
+//                viewModelScope.launch {
+//                    clearHistory()
+//                    switchToReady()
+//                    callback()
+//                }
+//            }
+//        }
+
         private fun mainTerminateChat(callback: () -> Unit) {
             executorService.submit {
-                callBackend { backend.unload() }
+                engine.unload()
                 viewModelScope.launch {
                     clearHistory()
                     switchToReady()
@@ -634,6 +674,22 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
 
+        private fun requestStreamCallback(chatCompletionStreamResponsesJSONStr: String) {
+            val chatCompletionResponse = gson.fromJson(
+                chatCompletionStreamResponsesJSONStr, ChatCompletionStreamResponse::class.java
+            )
+            val delta = chatCompletionResponse.choices[0].delta
+            val content = delta.content
+            viewModelScope.launch {
+                appendToLastMessage(content[0]["text"] as String)
+            }
+            if (chatCompletionResponse.choices[0].finishReason != null) {
+                viewModelScope.launch {
+                    switchToReady()
+                }
+            }
+        }
+
         private fun mainReloadChat(modelConfig: ModelConfig, modelPath: String) {
             clearHistory()
             this.modelName.value = modelConfig.modelId
@@ -643,13 +699,61 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 viewModelScope.launch {
                     Toast.makeText(application, "Initialize...", Toast.LENGTH_SHORT).show()
                 }
-                if (!callBackend {
-                        backend.unload()
-                        backend.reload(
-                            modelConfig.modelLib,
-                            modelPath
+                if (!callEngine {
+//                    engine.unload()
+                        val conversation = modelConfig.convTemplate
+                        val maxBatchSize = 2
+                        val maxTotalSequenceLength = 768
+                        val maxSingleSequenceLength = 512
+                        val prefillChunkSize = 128
+                        val maxHistorySize = 0
+                        val kvStateKind = 0
+                        val speculativeMode = 0
+                        val specDraftLength = 4
+
+                        val engineConfigStr = gson.toJson(
+                            mapOf(
+                                "model" to modelPath,
+                                "model_lib_path" to modelConfig.modelLib,
+                                "additional_models" to emptyList<String>(),
+                                "additional_model_lib_paths" to emptyList<String>(),
+                                "kv_cache_page_size" to 16,
+                                "max_num_sequence" to maxBatchSize,
+                                "max_total_sequence_length" to maxTotalSequenceLength,
+                                "max_single_sequence_length" to maxSingleSequenceLength,
+                                "prefill_chunk_size" to prefillChunkSize,
+                                "max_history_size" to maxHistorySize,
+                                "kv_state_kind" to kvStateKind,
+                                "speculative_mode" to speculativeMode,
+                                "spec_draft_length" to specDraftLength
+                            )
                         )
-                    }) return@submit
+
+                        val jsonFFIEngineConfigStr = gson.toJson(
+                            mapOf(
+                                "conv_template" to gson.toJson(conversation),
+                                "model_generation_cfgs" to mapOf(
+                                    modelConfig.modelId to mapOf(
+                                        "temperature" to modelConfig.temperature,
+                                        "top_p" to modelConfig.topP,
+                                        "frequency_penalty" to modelConfig.frequencyPenalty,
+                                        "presence_penalty" to modelConfig.presencePenalty
+                                    )
+                                )
+                            )
+                        )
+
+                        engine.init(jsonFFIEngineConfigStr, engineConfigStr, ::requestStreamCallback)
+                    }
+                    )
+
+//                if (!callBackend {
+//                        backend.unload()
+//                        backend.reload(
+//                            modelConfig.modelLib,
+//                            modelPath
+//                        )
+//                    }) return@submit
                 viewModelScope.launch {
                     Toast.makeText(application, "Ready to chat", Toast.LENGTH_SHORT).show()
                     switchToReady()
@@ -657,26 +761,44 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
+//        fun requestGenerate(prompt: String) {
+//            require(chatable())
+//            switchToGenerating()
+//            executorService.submit {
+//                appendMessage(MessageRole.User, prompt)
+//                appendMessage(MessageRole.Bot, "")
+//                if (!callBackend { backend.prefill(prompt) }) return@submit
+//                while (!backend.stopped()) {
+//                    if (!callBackend {
+//                            backend.decode()
+//                            val newText = backend.message
+//                            viewModelScope.launch { updateMessage(MessageRole.Bot, newText) }
+//                        }) return@submit
+//                    if (modelChatState.value != ModelChatState.Generating) return@submit
+//                }
+//                val runtimeStats = backend.runtimeStatsText()
+//                viewModelScope.launch {
+//                    report.value = runtimeStats
+//                    if (modelChatState.value == ModelChatState.Generating) switchToReady()
+//                }
+//            }
+//        }
+
         fun requestGenerate(prompt: String) {
             require(chatable())
             switchToGenerating()
             executorService.submit {
                 appendMessage(MessageRole.User, prompt)
+                val request = messages.map { message ->
+                    mapOf(
+                        "role" to message.role,
+                        "content" to listOf(mapOf("type" to "text", "text" to message.text))
+                    )
+                }
+                val requestId = UUID.randomUUID().toString()
+                val requestJsonStr = gson.toJson(request)
                 appendMessage(MessageRole.Bot, "")
-                if (!callBackend { backend.prefill(prompt) }) return@submit
-                while (!backend.stopped()) {
-                    if (!callBackend {
-                            backend.decode()
-                            val newText = backend.message
-                            viewModelScope.launch { updateMessage(MessageRole.Bot, newText) }
-                        }) return@submit
-                    if (modelChatState.value != ModelChatState.Generating) return@submit
-                }
-                val runtimeStats = backend.runtimeStatsText()
-                viewModelScope.launch {
-                    report.value = runtimeStats
-                    if (modelChatState.value == ModelChatState.Generating) switchToReady()
-                }
+                if (!callEngine { engine.chatCompletion(requestJsonStr, requestId)}) return@submit
             }
         }
 
@@ -687,6 +809,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
         private fun updateMessage(role: MessageRole, text: String) {
             messages[messages.size - 1] = MessageData(role, text)
+        }
+
+        private fun appendToLastMessage(text: String) {
+            var (role, prev) = messages.last()
+            assert(role == MessageRole.User)
+            messages[messages.size - 1] = MessageData(role, prev + text)
         }
 
         fun chatable(): Boolean {
@@ -741,6 +869,24 @@ data class ModelRecord(
     @SerializedName("estimated_vram_bytes") val estimatedVramBytes: Long?,
     @SerializedName("model_lib") val modelLib: String
 )
+data class ConvTemplate(
+    @SerializedName("name") val name: String,
+    @SerializedName("system_template") val systemTemplate: String,
+    @SerializedName("system_message") val systemMessage: String,
+    @SerializedName("system_prefix_token_ids") val systemPrefixTokenIds: List<Int>,
+    @SerializedName("add_role_after_system_message") val addRoleAfterSystemMessage: Boolean,
+    @SerializedName("roles") val roles: Map<String, String>,
+    @SerializedName("role_templates") val roleTemplates: Map<String, String>,
+    @SerializedName("messages") val messages: List<String>,
+    @SerializedName("seps") val seps: List<String>,
+    @SerializedName("role_content_sep") val roleContentSep: String,
+    @SerializedName("role_empty_sep") val roleEmptySep: String,
+    @SerializedName("stop_str") val stopStr: List<String>,
+    @SerializedName("stop_token_ids") val stopTokenIds: List<Int>,
+    @SerializedName("function_string") val functionString: String,
+    @SerializedName("use_function_calling") val useFunctionCalling: Boolean
+)
+
 
 data class ModelConfig(
     @SerializedName("model_lib") var modelLib: String,
@@ -749,6 +895,12 @@ data class ModelConfig(
     @SerializedName("tokenizer_files") val tokenizerFiles: List<String>,
     @SerializedName("context_window_size") val contextWindowSize: Int,
     @SerializedName("prefill_chunk_size") val prefillChunkSize: Int,
+    @SerializedName("conv_template") val convTemplate: ConvTemplate,
+    @SerializedName("temperature") val temperature: Double,
+    @SerializedName("top_p") val topP: Double,
+    @SerializedName("frequency_penalty") val frequencyPenalty: Double,
+    @SerializedName("presence_penalty") val presencePenalty: Double,
+
 )
 
 data class ParamsRecord(
@@ -757,4 +909,28 @@ data class ParamsRecord(
 
 data class ParamsConfig(
     @SerializedName("records") val paramsRecords: List<ParamsRecord>
+)
+
+data class ChatCompletionStreamResponse(
+    @SerializedName("id") val id: String,
+    @SerializedName("choices") val choices: List<ChatCompletionStreamResponseChoice>,
+    @SerializedName("created") val created: Int = (System.currentTimeMillis() / 1000L).toInt(),
+    @SerializedName("model") val model: String? = null,
+    @SerializedName("system_fingerprint") val systemFingerprint: String,
+    @SerializedName("object") val objectName: String = "chat.completion.chunk",
+//    @SerializedName("usage") val usage: UsageInfo = UsageInfo()
+)
+data class ChatCompletionStreamResponseChoice(
+    @SerializedName("finish_reason") val finishReason: String? = null,
+    @SerializedName("index") val index: Int = 0,
+    @SerializedName("delta") val delta: ChatCompletionMessage,
+//    @SerializedName("logprobs") val logprobs: LogProbs? = null
+)
+
+data class ChatCompletionMessage(
+    @SerializedName("content") val content: List<Map<String, String>>,
+    @SerializedName("role") val role: String,  // "system", "user", "assistant", "tool"
+    @SerializedName("name") val name: String? = null,
+//    @SerializedName("tool_calls") val toolCalls: List<ChatToolCall>? = null,
+    @SerializedName("tool_call_id") val toolCallId: String? = null
 )
