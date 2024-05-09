@@ -140,8 +140,9 @@ class JSONFFIEngineImpl : public JSONFFIEngine, public ModuleNode {
   TVM_MODULE_VTABLE_ENTRY("exit_background_loop", &JSONFFIEngineImpl::ExitBackgroundLoop);
   TVM_MODULE_VTABLE_END();
 
-  void InitBackgroundEngine(Device device, Optional<PackedFunc> request_stream_callback,
-                            Optional<EventTraceRecorder> trace_recorder) {
+  void InitBackgroundEngine(int device_type, int device_id,
+                            Optional<PackedFunc> request_stream_callback) {
+    DLDevice device{static_cast<DLDeviceType>(device_type), device_id};
     CHECK(request_stream_callback.defined())
         << "JSONFFIEngine requires request stream callback function, but it is not given.";
     this->request_stream_callback_ = request_stream_callback.value();
@@ -150,12 +151,12 @@ class JSONFFIEngineImpl : public JSONFFIEngine, public ModuleNode {
       ICHECK_EQ(args.size(), 1);
       Array<RequestStreamOutput> delta_outputs = args[0];
       Array<String> responses = this->GetResponseFromStreamOutput(delta_outputs);
-      this->request_stream_callback_(responses);
+      // this->request_stream_callback_(responses);
+      this->request_stream_callback_("hello");
     };
 
     request_stream_callback = PackedFunc(frequest_stream_callback_wrapper);
-    this->engine_->InitThreadedEngine(device, std::move(request_stream_callback),
-                                      std::move(trace_recorder));
+    this->engine_->InitThreadedEngine(device, std::move(request_stream_callback), NullOpt);
   }
 
   void Reload(String engine_config_json_str) {

@@ -125,7 +125,9 @@ class JSONFFIEngine:
             verbose=False,
         )
 
-        self._ffi["init_background_engine"](device, self.state.get_request_stream_callback(), None)
+        self._ffi["init_background_engine"](
+            device.device_type, device.device_id, self.state.get_request_stream_callback()
+        )
         self._ffi["reload"](self.engine_config.asjson())
 
     def terminate(self):

@@ -5,7 +5,7 @@ rustup target add aarch64-linux-android
 
 mkdir -p build/model_lib
 
-python3 prepare_model_lib.py
+python prepare_model_lib.py
 
 cd build
 touch config.cmake
